@@ -68,6 +68,8 @@ export default {
 				},
 				// Custom FlytBase colors
 				flytbase: {
+					primary: '#0B121E',
+					secondary: '#7E69AB', // Added the secondary color (purple)
 					dark: '#0B121E',
 					blue: '#0E61DD',
 					light: '#F0F0F0',
