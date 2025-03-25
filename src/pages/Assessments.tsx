@@ -1,196 +1,166 @@
 
-import { useState, useEffect } from 'react';
-import { assessments as assessmentsData } from '@/lib/data';
-import AssessmentCard from '@/components/assessments/AssessmentCard';
-import { Search, Filter, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import Navigation from '@/components/Navigation';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/lib/auth';
-import { Link } from 'react-router-dom';
+import { Input } from '@/components/ui/input';
+import { Search, FileText } from 'lucide-react';
+import AssessmentCard, { AssessmentProps } from '@/components/AssessmentCard';
+
+// Mock data for assessments
+export const assessmentsData: AssessmentProps[] = [
+  {
+    id: "reg-rules",
+    title: "Drone Regulations & Safety",
+    description: "Test your knowledge of drone safety guidelines, airspace restrictions, and regulatory compliance requirements.",
+    questions: 20,
+    timeLimit: "30 minutes",
+    difficulty: "Beginner",
+    thumbnail: "https://images.unsplash.com/photo-1579267312278-4586ec569a22"
+  },
+  {
+    id: "flight-ops",
+    title: "Basic Flight Operations",
+    description: "Demonstrate your understanding of drone flight controls, pre-flight procedures, and basic maneuvers.",
+    questions: 15,
+    timeLimit: "25 minutes",
+    difficulty: "Beginner",
+    thumbnail: "https://images.unsplash.com/photo-1507582020474-9a35b7d455d9"
+  },
+  {
+    id: "advanced-maneuvers",
+    title: "Advanced Flight Maneuvers",
+    description: "Challenge your knowledge of complex flight patterns, obstacle navigation, and precision control techniques.",
+    questions: 25,
+    timeLimit: "40 minutes",
+    difficulty: "Intermediate",
+    thumbnail: "https://images.unsplash.com/photo-1508614589041-895b88991e3e"
+  },
+  {
+    id: "aerial-photo",
+    title: "Aerial Photography Techniques",
+    description: "Test your understanding of composition, camera settings, and post-processing for drone photography.",
+    questions: 20,
+    timeLimit: "35 minutes",
+    difficulty: "Intermediate",
+    thumbnail: "https://images.unsplash.com/photo-1506947411487-a56738267384"
+  },
+  {
+    id: "mapping-tech",
+    title: "Mapping & Surveying Technology",
+    description: "Evaluate your knowledge of photogrammetry, mapping software, and drone surveying methodologies.",
+    questions: 30,
+    timeLimit: "45 minutes",
+    difficulty: "Advanced",
+    thumbnail: "https://images.unsplash.com/photo-1509803874385-db7c23652552"
+  },
+  {
+    id: "emergency-proc",
+    title: "Emergency Procedures",
+    description: "Test your understanding of drone emergency protocols, recovery techniques, and risk management.",
+    questions: 15,
+    timeLimit: "20 minutes",
+    difficulty: "Advanced",
+    thumbnail: "https://images.unsplash.com/photo-1504639725590-34d0984388bd"
+  }
+];
 
 const Assessments = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const { authState } = useAuth();
-  const { isAuthenticated } = authState;
-
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Filter assessments based on search query and filters
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  
+  const filters = [
+    { name: 'All', value: null },
+    { name: 'Beginner', value: 'Beginner' },
+    { name: 'Intermediate', value: 'Intermediate' },
+    { name: 'Advanced', value: 'Advanced' }
+  ];
+  
   const filteredAssessments = assessmentsData.filter(assessment => {
-    const matchesSearch = assessment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      assessment.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesLevel = selectedLevel ? assessment.level === selectedLevel : true;
-    
-    return matchesSearch && matchesLevel;
+    const matchesSearch = assessment.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          assessment.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = activeFilter ? assessment.difficulty === activeFilter : true;
+    return matchesSearch && matchesFilter;
   });
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen pt-28 pb-16 flex items-center justify-center">
-        <div className="text-center max-w-md px-4">
-          <h1 className="text-3xl font-bold mb-4 blue-gradient inline-block">
-            Assessments
-          </h1>
-          <p className="text-flytbase-light/70 mb-8">
-            Please sign in to access assessments and track your learning progress.
-          </p>
-          <Link to="/login">
-            <Button className="btn-primary px-8 py-3">
-              Sign In
-            </Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen pt-20 pb-16">
+    <div className="min-h-screen bg-flytbase-primary">
+      <Navigation />
+      
       {/* Header */}
-      <div className="bg-gradient-to-r from-secondary/60 to-secondary/20 border-b border-white/5">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="max-w-4xl">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 blue-gradient inline-block">
-              Assessments & Certification
-            </h1>
-            <p className="text-flytbase-light/70 text-lg max-w-3xl">
-              Test your knowledge, validate your skills, and earn certifications recognized by the drone industry.
-            </p>
+      <section className="pt-20 md:pt-24 bg-flytbase-primary text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold">Skill Assessments</h1>
+              <p className="mt-2 text-neutral-300 max-w-2xl">
+                Test your knowledge and earn certificates by completing these drone-related assessments
+              </p>
+            </div>
+            <div className="mt-6 md:mt-0">
+              <div className="flex items-center bg-white/10 rounded-lg p-1 backdrop-blur-sm">
+                <div className="flex space-x-1 p-1">
+                  {filters.map((filter) => (
+                    <Button
+                      key={filter.name}
+                      variant={activeFilter === filter.value ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveFilter(filter.value)}
+                      className={activeFilter === filter.value ? "bg-flytbase-secondary text-white" : "text-white hover:bg-white/20"}
+                    >
+                      {filter.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Search Bar */}
+      <div className="bg-[#1A1F2C] border-b border-white/5 sticky top-16 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 h-5 w-5" />
+            <Input
+              type="text"
+              placeholder="Search assessments by title or description..."
+              className="pl-10 w-full bg-[#222631] border-white/10 text-white"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
       </div>
-
-      {/* Assessments Section */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Search and Filters */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4">
-            {/* Search */}
-            <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-flytbase-light/50 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search assessments..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-secondary/40 backdrop-blur-sm border border-white/10 text-flytbase-light placeholder:text-flytbase-light/50 focus:outline-none focus:ring-1 focus:ring-flytbase-blue"
-              />
+      
+      {/* Assessment Grid */}
+      <section className="py-12 bg-flytbase-primary">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {filteredAssessments.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredAssessments.map((assessment) => (
+                <AssessmentCard key={assessment.id} {...assessment} />
+              ))}
             </div>
-            
-            {/* Filter toggle button (mobile) */}
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="sm:hidden flex items-center gap-2"
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-            >
-              <Filter size={16} />
-              Filters
-              <ChevronDown size={16} className={isFilterOpen ? "rotate-180 transform" : ""} />
-            </Button>
-            
-            {/* Filters (desktop) */}
-            <div className="hidden sm:flex items-center gap-4 flex-1 justify-end">
-              <div>
-                <select
-                  value={selectedLevel || ''}
-                  onChange={(e) => setSelectedLevel(e.target.value || null)}
-                  className="rounded-lg bg-secondary/40 backdrop-blur-sm border border-white/10 text-flytbase-light py-2 px-3 focus:outline-none focus:ring-1 focus:ring-flytbase-blue"
-                >
-                  <option value="">All Levels</option>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          {/* Filters (mobile) */}
-          {isFilterOpen && (
-            <div className="sm:hidden flex flex-col gap-3 pt-2 pb-4 animate-fade-in">
-              <div>
-                <label className="block text-flytbase-light/70 text-sm mb-1">Level</label>
-                <select
-                  value={selectedLevel || ''}
-                  onChange={(e) => setSelectedLevel(e.target.value || null)}
-                  className="w-full rounded-lg bg-secondary/40 backdrop-blur-sm border border-white/10 text-flytbase-light py-2 px-3 focus:outline-none focus:ring-1 focus:ring-flytbase-blue"
-                >
-                  <option value="">All Levels</option>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
-              </div>
+          ) : (
+            <div className="text-center py-16">
+              <FileText className="mx-auto h-12 w-12 text-neutral-300" />
+              <h3 className="mt-4 text-lg font-medium text-white">No assessments found</h3>
+              <p className="mt-1 text-neutral-400">Try adjusting your search or filter to find what you're looking for.</p>
+              <Button 
+                className="mt-6 bg-flytbase-secondary hover:bg-flytbase-secondary/90"
+                onClick={() => {
+                  setSearchTerm('');
+                  setActiveFilter(null);
+                }}
+              >
+                Reset Filters
+              </Button>
             </div>
           )}
         </div>
-        
-        {/* Results count */}
-        <div className="text-flytbase-light/70 text-sm mb-6">
-          Showing {filteredAssessments.length} of {assessmentsData.length} assessments
-        </div>
-        
-        {/* Assessments grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="glass-card rounded-xl animate-pulse h-64">
-                <div className="p-6">
-                  <div className="flex justify-between mb-4">
-                    <div className="h-6 w-20 bg-flytbase-blue/10 rounded-full"></div>
-                    <div className="h-6 w-16 bg-flytbase-blue/10 rounded-full"></div>
-                  </div>
-                  <div className="h-8 bg-flytbase-blue/10 rounded mb-3"></div>
-                  <div className="h-4 bg-flytbase-blue/10 rounded mb-2"></div>
-                  <div className="h-4 bg-flytbase-blue/10 rounded mb-2 w-3/4"></div>
-                  <div className="h-4 bg-flytbase-blue/10 rounded mb-6 w-1/2"></div>
-                  <div className="flex justify-between mb-4">
-                    <div className="h-5 w-24 bg-flytbase-blue/10 rounded"></div>
-                    <div className="h-5 w-24 bg-flytbase-blue/10 rounded"></div>
-                  </div>
-                  <div className="h-10 bg-flytbase-blue/10 rounded-lg mt-6"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <>
-            {filteredAssessments.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredAssessments.map((assessment) => (
-                  <AssessmentCard key={assessment.id} assessment={assessment} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <p className="text-flytbase-light/70 mb-2">
-                  No assessments found matching your criteria.
-                </p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setSearchQuery('');
-                    setSelectedLevel(null);
-                  }}
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      </section>
     </div>
   );
 };
